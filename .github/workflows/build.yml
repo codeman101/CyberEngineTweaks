@@ -32,14 +32,22 @@ jobs:
     # Install xmake
     - name: Setup xmake
       uses: xmake-io/github-action-setup-xmake@v1
+      with:
+        xmake-version: '3.0.8'
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
-      run: xmake.exe repo --update
+      run: |
+        xmake.exe repo --update
+        # Package recipes as of 2026-05-09 (the last green master build); newer recipes pull mimalloc 3.x, which TiltedCore 0.2.7 does not link with.
+        $repo = Join-Path $env:LOCALAPPDATA '.xmake\repositories\xmake-repo'
+        git -C $repo fetch --depth=1 origin 33a3d2592b35c2e02b01b0824a9f017a787ddec1
+        git -C $repo checkout --force FETCH_HEAD
+        git -C $repo log -1 --format='xmake-repo %H %cd'
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake.exe config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes
+      run: xmake.exe config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --yes -v
 
     # Install the result files
     - name: Build and create package
