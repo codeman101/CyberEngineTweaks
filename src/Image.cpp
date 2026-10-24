@@ -26,11 +26,11 @@ struct ImageVersion
 #include "MacShims.hpp"
 
 #include <CoreFoundation/CoreFoundation.h>
-#include <RED4ext/Api/Runtime.hpp>
+#include <RED4ext/Api/v1/Runtime.hpp>
 
 // CET macOS: the macOS game has no PE version resource. The bundle's CFBundleShortVersionString is the product version (2.5.0 for
 // game 2.5; 2.3.1 before); CET's address table is made for that build, so it is reported as the Windows file version of the latest
-// build (RED4EXT_RUNTIME_LATEST) and anything else is left unknown (CET then refuses to start, as on Windows).
+// build (RED4EXT_V1_RUNTIME_VERSION_LATEST) and anything else is left unknown (CET then refuses to start, as on Windows).
 void Image::Initialize()
 {
     base_address = CetMac::ImageBase();
@@ -48,10 +48,10 @@ void Image::Initialize()
 
     unsigned major = 0, minor = 0, patch = 0;
     if (std::sscanf(shortVersion.c_str(), "%u.%u.%u", &major, &minor, &patch) >= 2)
-        SemVersion = RED4EXT_SEMVER(static_cast<uint8_t>(major), static_cast<uint16_t>(minor * 10 + patch), 0);
+        SemVersion = RED4EXT_V1_SEMVER(static_cast<uint8_t>(major), static_cast<uint16_t>(minor * 10 + patch), 0);
 
     if (shortVersion == "2.5.0")
-        FileVersion = RED4EXT_RUNTIME_LATEST;
+        FileVersion = RED4EXT_V1_RUNTIME_VERSION_LATEST;
 
     CetMac::Log("[cet] game bundle version '%s' (%s)", shortVersion.c_str(),
                 FileVersion.major != 0 ? "supported, same build as the address table" : "not supported by this build");
